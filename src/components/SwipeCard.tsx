@@ -32,11 +32,6 @@ export function SwipeCard({ item, onSwipe, onSwipeUp, onAddToCart, onTap }: Swip
     [0, 1, 0]
   );
 
-  // Visual feedback overlays
-  const likeOpacity = useTransform(x, [0, 100], [0, 1]);
-  const nopeOpacity = useTransform(x, [-100, 0], [1, 0]);
-  const upOpacity = useTransform(y, [-100, 0], [1, 0]);
-
   const handleDragEnd = (_: any, info: any) => {
     const { offset } = info;
     
@@ -78,40 +73,7 @@ export function SwipeCard({ item, onSwipe, onSwipeUp, onAddToCart, onTap }: Swip
       className="absolute w-full max-w-sm cursor-grab active:cursor-grabbing"
       onClick={handleClick}
     >
-      <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_#000000] overflow-hidden relative">
-        {/* LIKE Overlay - appears when swiping right */}
-        <motion.div
-          style={{ opacity: likeOpacity }}
-          className="absolute inset-0 bg-[#00FF80]/90 z-20 flex items-center justify-center pointer-events-none"
-        >
-          <div className="bg-white border-4 border-black px-8 py-4 rotate-12 shadow-[8px_8px_0px_0px_#000000]">
-            <Heart className="h-16 w-16 text-red-600 fill-red-600 mb-2" />
-            <p className="text-3xl font-bold">LIKE!</p>
-          </div>
-        </motion.div>
-
-        {/* NOPE Overlay - appears when swiping left */}
-        <motion.div
-          style={{ opacity: nopeOpacity }}
-          className="absolute inset-0 bg-red-500/90 z-20 flex items-center justify-center pointer-events-none"
-        >
-          <div className="bg-white border-4 border-black px-8 py-4 -rotate-12 shadow-[8px_8px_0px_0px_#000000]">
-            <X className="h-16 w-16 text-red-600 mb-2" />
-            <p className="text-3xl font-bold">NOPE!</p>
-          </div>
-        </motion.div>
-
-        {/* SIMILAR Overlay - appears when swiping up */}
-        <motion.div
-          style={{ opacity: upOpacity }}
-          className="absolute inset-0 bg-[#0080FF]/90 z-20 flex items-center justify-center pointer-events-none"
-        >
-          <div className="bg-white border-4 border-black px-8 py-4 shadow-[8px_8px_0px_0px_#000000]">
-            <ChevronUp className="h-16 w-16 text-[#0080FF] mb-2" />
-            <p className="text-3xl font-bold">SIMILAR!</p>
-          </div>
-        </motion.div>
-
+      <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_#000000] overflow-hidden">
         {/* Swipe Up Indicator */}
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 bg-[#0080FF] border-3 border-black px-4 py-2 shadow-[4px_4px_0px_0px_#000000] animate-bounce">
           <div className="flex items-center gap-2">
