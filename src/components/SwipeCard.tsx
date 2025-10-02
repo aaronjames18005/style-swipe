@@ -75,8 +75,11 @@ export function SwipeCard({ item, onSwipe, onSwipeUp, onAddToCart, onTap }: Swip
     >
       <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_#000000] overflow-hidden">
         {/* Swipe Up Indicator */}
-        <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10 bg-[#0080FF] border-2 border-black px-3 py-1 shadow-[2px_2px_0px_0px_#000000] animate-bounce">
-          <ChevronUp className="h-4 w-4 text-white" />
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 bg-[#0080FF] border-3 border-black px-4 py-2 shadow-[4px_4px_0px_0px_#000000] animate-bounce">
+          <div className="flex items-center gap-2">
+            <ChevronUp className="h-5 w-5 text-white font-bold" />
+            <span className="text-white font-bold text-sm">SWIPE UP</span>
+          </div>
         </div>
 
         {/* Image */}
@@ -103,23 +106,33 @@ export function SwipeCard({ item, onSwipe, onSwipeUp, onAddToCart, onTap }: Swip
           <h3 className="text-2xl font-bold mb-2 tracking-tight">{item.name}</h3>
           <p className="text-sm mb-4">{item.description}</p>
 
+          {/* Swipe Instructions */}
+          <div className="mb-4 p-3 bg-[#FFE5F0] border-3 border-black">
+            <p className="text-xs font-bold text-center">
+              ← SWIPE LEFT to skip | SWIPE RIGHT to like →
+            </p>
+            <p className="text-xs font-bold text-center mt-1">
+              ↑ SWIPE UP for similar | TAP for details
+            </p>
+          </div>
+
           {/* Action Buttons */}
           <div className="flex gap-3">
             <Button
               onClick={() => onSwipe("left")}
               variant="outline"
               size="lg"
-              className="flex-1 border-4 border-black bg-white hover:bg-gray-100 shadow-[4px_4px_0px_0px_#000000] hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
+              className="flex-1 border-4 border-black bg-white hover:bg-red-100 shadow-[4px_4px_0px_0px_#000000] hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
             >
-              <X className="h-6 w-6" />
+              <X className="h-6 w-6 text-red-600" />
             </Button>
             <Button
               onClick={onAddToCart}
               size="lg"
-              className="flex-1 border-4 border-black bg-[#FF0080] hover:bg-[#FF0080]/90 text-white shadow-[4px_4px_0px_0px_#000000] hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
+              className="flex-1 border-4 border-black bg-[#FF0080] hover:bg-[#FF0080]/90 text-white shadow-[4px_4px_0px_0px_#000000] hover:shadow-[2px_2px_0px_0px_#000000] transition-all font-bold"
             >
               <ShoppingCart className="h-5 w-5 mr-2" />
-              Add to Cart
+              CART
             </Button>
             <Button
               onClick={() => onSwipe("right")}
@@ -127,7 +140,7 @@ export function SwipeCard({ item, onSwipe, onSwipeUp, onAddToCart, onTap }: Swip
               size="lg"
               className="flex-1 border-4 border-black bg-[#00FF80] hover:bg-[#00FF80]/90 shadow-[4px_4px_0px_0px_#000000] hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
             >
-              <Heart className="h-6 w-6" />
+              <Heart className="h-6 w-6 text-red-600 fill-red-600" />
             </Button>
           </div>
         </div>
