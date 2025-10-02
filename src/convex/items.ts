@@ -155,6 +155,78 @@ export const addSampleItems = mutation({
         sizes: ["S", "M", "L", "XL"],
         tags: ["formal", "leather", "jacket"],
       },
+      {
+        name: "Gray Sweatpants",
+        type: "pants",
+        color: "gray",
+        pattern: "plain",
+        imageUrl: "https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=500",
+        price: 49.99,
+        brand: "ComfortZone",
+        description: "Soft and comfortable sweatpants",
+        sizes: ["S", "M", "L", "XL"],
+        tags: ["casual", "comfortable", "loungewear"],
+      },
+      {
+        name: "Floral Blouse",
+        type: "shirt",
+        color: "multicolor",
+        pattern: "floral",
+        imageUrl: "https://images.unsplash.com/photo-1564257577-d18b7c3a0b0d?w=500",
+        price: 45.99,
+        brand: "FloralFashion",
+        description: "Elegant floral pattern blouse",
+        sizes: ["XS", "S", "M", "L"],
+        tags: ["formal", "elegant", "floral"],
+      },
+      {
+        name: "Brown Boots",
+        type: "shoes",
+        color: "brown",
+        pattern: "plain",
+        imageUrl: "https://images.unsplash.com/photo-1605812860427-4024433a70fd?w=500",
+        price: 129.99,
+        brand: "BootCraft",
+        description: "Durable leather boots",
+        sizes: ["7", "8", "9", "10", "11"],
+        tags: ["formal", "leather", "boots"],
+      },
+      {
+        name: "Graphic Tee",
+        type: "shirt",
+        color: "white",
+        pattern: "graphic",
+        imageUrl: "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=500",
+        price: 34.99,
+        brand: "ArtWear",
+        description: "Cool graphic design t-shirt",
+        sizes: ["S", "M", "L", "XL"],
+        tags: ["casual", "graphic", "trendy"],
+      },
+      {
+        name: "Khaki Chinos",
+        type: "pants",
+        color: "beige",
+        pattern: "plain",
+        imageUrl: "https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=500",
+        price: 69.99,
+        brand: "ClassicFit",
+        description: "Versatile khaki chinos",
+        sizes: ["28", "30", "32", "34", "36"],
+        tags: ["casual", "formal", "versatile"],
+      },
+      {
+        name: "Denim Jacket",
+        type: "jacket",
+        color: "blue",
+        pattern: "plain",
+        imageUrl: "https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=500",
+        price: 89.99,
+        brand: "DenimPro",
+        description: "Classic denim jacket",
+        sizes: ["S", "M", "L", "XL"],
+        tags: ["casual", "denim", "classic"],
+      },
     ];
 
     for (const item of sampleItems) {
@@ -287,5 +359,25 @@ export const recordSwipePattern = mutation({
     // For now, just record the swipe (future: aggregate patterns)
     // This data can be used later for ML-based recommendations
     return { success: true, pattern: { type: item.type, color: item.color, action: args.action } };
+  },
+});
+
+// Reset swipe history for current user
+export const resetSwipeHistory = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const user = await getCurrentUser(ctx);
+    if (!user) throw new Error("Not authenticated");
+
+    const swipes = await ctx.db
+      .query("swipes")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .collect();
+
+    for (const swipe of swipes) {
+      await ctx.db.delete(swipe._id);
+    }
+
+    return { success: true, count: swipes.length };
   },
 });
