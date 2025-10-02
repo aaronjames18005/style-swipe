@@ -1,5 +1,5 @@
 import { motion, useMotionValue, useTransform } from "framer-motion";
-import { Heart, ShoppingCart, X } from "lucide-react";
+import { Heart, ShoppingCart, X, ChevronUp } from "lucide-react";
 import { useState } from "react";
 import { Button } from "./ui/button";
 
@@ -15,37 +15,70 @@ interface SwipeCardProps {
     description?: string;
   };
   onSwipe: (direction: "left" | "right") => void;
+  onSwipeUp: () => void;
   onAddToCart: () => void;
+  onTap: () => void;
 }
 
-export function SwipeCard({ item, onSwipe, onAddToCart }: SwipeCardProps) {
+export function SwipeCard({ item, onSwipe, onSwipeUp, onAddToCart, onTap }: SwipeCardProps) {
   const [exitX, setExitX] = useState(0);
+  const [exitY, setExitY] = useState(0);
   const x = useMotionValue(0);
+  const y = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-25, 25]);
-  const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0, 1, 1, 1, 0]);
+  const opacity = useTransform(
+    x,
+    [-200, 0, 200],
+    [0, 1, 0]
+  );
 
   const handleDragEnd = (_: any, info: any) => {
-    if (Math.abs(info.offset.x) > 100) {
-      setExitX(info.offset.x > 0 ? 300 : -300);
-      onSwipe(info.offset.x > 0 ? "right" : "left");
+    const { offset } = info;
+    
+    // Check for swipe up first (vertical movement)
+    if (offset.y < -100 && Math.abs(offset.x) < 50) {
+      setExitY(-300);
+      onSwipeUp();
+      return;
     }
+    
+    // Then check for horizontal swipes
+    if (Math.abs(offset.x) > 100) {
+      setExitX(offset.x > 0 ? 300 : -300);
+      onSwipe(offset.x > 0 ? "right" : "left");
+    }
+  };
+
+  const handleClick = (e: React.MouseEvent) => {
+    // Only trigger tap if not clicking on buttons
+    if ((e.target as HTMLElement).closest('button')) {
+      return;
+    }
+    onTap();
   };
 
   return (
     <motion.div
       style={{
         x,
+        y,
         rotate,
         opacity,
       }}
-      drag="x"
-      dragConstraints={{ left: 0, right: 0 }}
+      drag
+      dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
       onDragEnd={handleDragEnd}
-      animate={{ x: exitX }}
+      animate={{ x: exitX, y: exitY }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
       className="absolute w-full max-w-sm cursor-grab active:cursor-grabbing"
+      onClick={handleClick}
     >
       <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_#000000] overflow-hidden">
+        {/* Swipe Up Indicator */}
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10 bg-[#0080FF] border-2 border-black px-3 py-1 shadow-[2px_2px_0px_0px_#000000] animate-bounce">
+          <ChevronUp className="h-4 w-4 text-white" />
+        </div>
+
         {/* Image */}
         <div className="relative h-96 bg-[#FF0080] overflow-hidden">
           <img

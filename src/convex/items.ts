@@ -164,3 +164,128 @@ export const addSampleItems = mutation({
     return { success: true, count: sampleItems.length };
   },
 });
+
+// Get similar items based on type, tags, and style
+export const getSimilarItems = query({
+  args: { itemId: v.id("items"), limit: v.optional(v.number()) },
+  handler: async (ctx, args) => {
+    const item = await ctx.db.get(args.itemId);
+    if (!item) return [];
+
+    const limit = args.limit || 10;
+
+    // Get all items of the same type
+    const allItems = await ctx.db
+      .query("items")
+      .withIndex("by_type", (q) => q.eq("type", item.type))
+      .collect();
+
+    // Filter out the current item and score by similarity
+    const scoredItems = allItems
+      .filter((i) => i._id !== item._id)
+      .map((i) => {
+        let score = 0;
+        // Same type already matched
+        score += 10;
+        // Check tag overlap
+        const tagOverlap = i.tags.filter((tag) => item.tags.includes(tag)).length;
+        score += tagOverlap * 5;
+        // Different color is good for variety
+        if (i.color !== item.color) score += 3;
+        // Similar price range
+        const priceDiff = Math.abs(i.price - item.price);
+        if (priceDiff < 20) score += 5;
+        else if (priceDiff < 50) score += 2;
+
+        return { item: i, score };
+      })
+      .sort((a, b) => b.score - a.score)
+      .slice(0, limit)
+      .map((s) => s.item);
+
+    return scoredItems;
+  },
+});
+
+// Get complementary item recommendations
+export const getRecommendations = query({
+  args: { itemId: v.id("items"), limit: v.optional(v.number()) },
+  handler: async (ctx, args) => {
+    const item = await ctx.db.get(args.itemId);
+    if (!item) return [];
+
+    const limit = args.limit || 5;
+
+    // Define complementary types
+    const complementaryTypes: Record<string, string[]> = {
+      shirt: ["pants", "shoes", "accessories", "jacket"],
+      pants: ["shirt", "shoes", "accessories", "jacket"],
+      dress: ["shoes", "accessories"],
+      shoes: ["shirt", "pants", "dress", "accessories"],
+      jacket: ["shirt", "pants", "shoes"],
+      accessories: ["shirt", "pants", "dress", "shoes"],
+    };
+
+    const targetTypes = complementaryTypes[item.type] || [];
+    if (targetTypes.length === 0) return [];
+
+    // Get all items
+    const allItems = await ctx.db.query("items").collect();
+
+    // Filter and score complementary items
+    const scoredItems = allItems
+      .filter((i) => targetTypes.includes(i.type))
+      .map((i) => {
+        let score = 0;
+        // Check if tags suggest good pairing
+        const casualTags = ["casual", "everyday", "basic"];
+        const formalTags = ["formal", "elegant", "professional"];
+        
+        const itemIsCasual = item.tags.some((t) => casualTags.includes(t));
+        const itemIsFormal = item.tags.some((t) => formalTags.includes(t));
+        const targetIsCasual = i.tags.some((t) => casualTags.includes(t));
+        const targetIsFormal = i.tags.some((t) => formalTags.includes(t));
+
+        if ((itemIsCasual && targetIsCasual) || (itemIsFormal && targetIsFormal)) {
+          score += 10;
+        }
+
+        // Similar price range suggests good pairing
+        const priceDiff = Math.abs(i.price - item.price);
+        if (priceDiff < 30) score += 5;
+        else if (priceDiff < 60) score += 2;
+
+        // Color coordination (simple logic)
+        const neutralColors = ["black", "white", "gray", "beige"];
+        if (neutralColors.includes(i.color) || neutralColors.includes(item.color)) {
+          score += 3;
+        }
+
+        return { item: i, score };
+      })
+      .sort((a, b) => b.score - a.score)
+      .slice(0, limit)
+      .map((s) => s.item);
+
+    return scoredItems;
+  },
+});
+
+// Record swipe patterns for AI learning
+export const recordSwipePattern = mutation({
+  args: {
+    itemId: v.id("items"),
+    action: v.union(v.literal("left"), v.literal("right")),
+  },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUser(ctx);
+    if (!user) throw new Error("Not authenticated");
+
+    const item = await ctx.db.get(args.itemId);
+    if (!item) return;
+
+    // For now, just record the swipe (future: aggregate patterns)
+    // This data can be used later for ML-based recommendations
+    return { success: true, pattern: { type: item.type, color: item.color, action: args.action } };
+  },
+});
