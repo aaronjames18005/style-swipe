@@ -158,17 +158,7 @@ export default function Landing() {
       {/* Footer */}
       <footer className="border-t-4 border-black bg-white py-8 mt-16">
         <div className="container mx-auto px-4 text-center">
-          <p className="text-sm text-gray-600">
-            Built with ❤️ by{" "}
-            <a
-              href="https://vly.ai"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline hover:text-[#FF0080] transition-colors font-bold"
-            >
-              vly.ai
-            </a>
-          </p>
+          <p className="text-sm text-gray-600">© {new Date().getFullYear()} Style Swipe</p>
         </div>
       </footer>
     </div>

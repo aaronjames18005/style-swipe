@@ -16,7 +16,7 @@ export const emailOtp = Email({
         {
           to: email,
           otp: token,
-          appName: process.env.VLY_APP_NAME || "a vly.ai application",
+          appName: process.env.VLY_APP_NAME || "Style Swipe",
         },
         {
           headers: {
